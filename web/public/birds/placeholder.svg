@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Ilustrasi siluet burung">
+  <rect width="400" height="300" fill="#F7F3E8"/>
+  <g fill="#1F5D3B">
+    <circle cx="218" cy="118" r="38"/>
+    <ellipse cx="180" cy="176" rx="74" ry="58"/>
+    <path d="M246 106 L283 120 L246 133 Z"/>
+    <path d="M116 188 L58 150 L104 218 Z"/>
+  </g>
+  <circle cx="230" cy="110" r="6" fill="#F7F3E8"/>
+  <path d="M178 230 L173 262 M196 232 L199 264" stroke="#1F5D3B" stroke-width="8" stroke-linecap="round"/>
+  <path d="M62 264 H338" stroke="#3E7B5A" stroke-width="9" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,59 @@
+@import '@fontsource-variable/fraunces/wght.css';
+@import '@fontsource/ibm-plex-sans/latin-400.css';
+@import '@fontsource/ibm-plex-sans/latin-500.css';
+@import '@fontsource/ibm-plex-sans/latin-600.css';
+@import '@fontsource/ibm-plex-mono/latin-400.css';
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #f4efe2;
+  --color-paper: #fbf8f0;
+  --color-forest: #1e5138;
+  --color-forest-deep: #143826;
+  --color-fern: #3f6b50;
+  --color-amber: #b97b2a;
+  --color-sand: #d9cdb4;
+  --color-rule: #ddd4c2;
+  --color-ink: #1c2a21;
+  --color-secondary: #4f5c4c;
+  --color-muted: #606a58;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Fraunces Variable", ui-serif, Georgia, Cambria, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-cream text-ink antialiased;
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+  }
+
+  ::selection {
+    background: var(--color-forest);
+    color: var(--color-cream);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-forest);
+    outline-offset: 2px;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+  }
+}
