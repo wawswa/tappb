@@ -15,20 +15,6 @@ CREATE TABLE birds (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE sightings (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  bird_id UUID NOT NULL REFERENCES birds(id) ON DELETE CASCADE,
-  observer_name TEXT NOT NULL,
-  location_name TEXT NOT NULL,
-  latitude NUMERIC(9,6) CHECK (latitude BETWEEN -90 AND 90),
-  longitude NUMERIC(9,6) CHECK (longitude BETWEEN -180 AND 180),
-  spotted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  notes TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-CREATE INDEX idx_sightings_bird_id ON sightings(bird_id);
-CREATE INDEX idx_sightings_spotted_at ON sightings(spotted_at DESC);
-
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   username TEXT NOT NULL UNIQUE,
@@ -47,3 +33,19 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
+
+CREATE TABLE sightings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  bird_id UUID NOT NULL REFERENCES birds(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  observer_name TEXT NOT NULL,
+  location_name TEXT NOT NULL,
+  latitude NUMERIC(9,6) CHECK (latitude BETWEEN -90 AND 90),
+  longitude NUMERIC(9,6) CHECK (longitude BETWEEN -180 AND 180),
+  spotted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_sightings_bird_id ON sightings(bird_id);
+CREATE INDEX idx_sightings_user_id ON sightings(user_id);
+CREATE INDEX idx_sightings_spotted_at ON sightings(spotted_at DESC);

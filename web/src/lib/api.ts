@@ -21,6 +21,7 @@ export interface Bird {
 export interface Sighting {
   id: string;
   bird_id: string;
+  user_id: string | null;
   observer_name: string;
   location_name: string;
   latitude: number | null;
@@ -64,9 +65,8 @@ export interface CreateBirdInput {
   image_source_url?: string;
 }
 
-export interface CreateSightingInput {
+export interface SightingInput {
   bird_id: string;
-  observer_name: string;
   location_name: string;
   latitude?: number | null;
   longitude?: number | null;
@@ -142,10 +142,23 @@ export function getStats() {
   return request<Stats>('/stats');
 }
 
-export function createSighting(input: CreateSightingInput) {
+export function createSighting(input: SightingInput) {
   return request<Sighting>('/sightings', {
     method: 'POST',
     body: JSON.stringify(input),
+  });
+}
+
+export function updateSighting(id: string, input: SightingInput) {
+  return request<Sighting>(`/sightings/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteSighting(id: string) {
+  return request<{ message: string }>(`/sightings/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
   });
 }
 

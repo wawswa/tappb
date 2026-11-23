@@ -111,7 +111,6 @@ export function parseSightingPayload(rawBody) {
   }
   return {
     bird_id: body.bird_id,
-    observer_name: requireString(body.observer_name, 'Nama pengamat', { max: 120 }),
     location_name: requireString(body.location_name, 'Lokasi', { max: 200 }),
     latitude: optionalNumber(body.latitude, 'Latitude', { min: -90, max: 90 }),
     longitude: optionalNumber(body.longitude, 'Longitude', { min: -180, max: 180 }),

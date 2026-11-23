@@ -20,6 +20,7 @@ import { Route as BurungBirdIdRouteImport } from './routes/burung.$birdId'
 import { Route as SpottingIndexRouteImport } from './routes/spotting.index'
 import { Route as SpottingSightingIdRouteImport } from './routes/spotting.$sightingId'
 import { Route as AdminBurungBaruRouteImport } from './routes/admin.burung.baru'
+import { Route as SpottingSightingIdEditRouteImport } from './routes/spotting.$sightingId_.edit'
 import { Route as AdminBurungBirdIdEditRouteImport } from './routes/admin.burung.$birdId.edit'
 
 const IndexRoute = IndexRouteImport.update({
@@ -77,6 +78,11 @@ const AdminBurungBaruRoute = AdminBurungBaruRouteImport.update({
   path: '/admin/burung/baru',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SpottingSightingIdEditRoute = SpottingSightingIdEditRouteImport.update({
+  id: '/$sightingId_/edit',
+  path: '/$sightingId/edit',
+  getParentRoute: () => SpottingRoute,
+} as any)
 const AdminBurungBirdIdEditRoute = AdminBurungBirdIdEditRouteImport.update({
   id: '/admin/burung/$birdId/edit',
   path: '/admin/burung/$birdId/edit',
@@ -95,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/burung/': typeof BurungIndexRoute
   '/spotting/': typeof SpottingIndexRoute
   '/admin/burung/baru': typeof AdminBurungBaruRoute
+  '/spotting/$sightingId/edit': typeof SpottingSightingIdEditRoute
   '/admin/burung/$birdId/edit': typeof AdminBurungBirdIdEditRoute
 }
 export interface FileRoutesByTo {
@@ -107,6 +114,7 @@ export interface FileRoutesByTo {
   '/burung': typeof BurungIndexRoute
   '/spotting': typeof SpottingIndexRoute
   '/admin/burung/baru': typeof AdminBurungBaruRoute
+  '/spotting/$sightingId/edit': typeof SpottingSightingIdEditRoute
   '/admin/burung/$birdId/edit': typeof AdminBurungBirdIdEditRoute
 }
 export interface FileRoutesById {
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/burung/': typeof BurungIndexRoute
   '/spotting/': typeof SpottingIndexRoute
   '/admin/burung/baru': typeof AdminBurungBaruRoute
+  '/spotting/$sightingId_/edit': typeof SpottingSightingIdEditRoute
   '/admin/burung/$birdId/edit': typeof AdminBurungBirdIdEditRoute
 }
 export interface FileRouteTypes {
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
     | '/burung/'
     | '/spotting/'
     | '/admin/burung/baru'
+    | '/spotting/$sightingId/edit'
     | '/admin/burung/$birdId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/burung'
     | '/spotting'
     | '/admin/burung/baru'
+    | '/spotting/$sightingId/edit'
     | '/admin/burung/$birdId/edit'
   id:
     | '__root__'
@@ -164,6 +175,7 @@ export interface FileRouteTypes {
     | '/burung/'
     | '/spotting/'
     | '/admin/burung/baru'
+    | '/spotting/$sightingId_/edit'
     | '/admin/burung/$birdId/edit'
   fileRoutesById: FileRoutesById
 }
@@ -257,6 +269,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBurungBaruRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/spotting/$sightingId_/edit': {
+      id: '/spotting/$sightingId_/edit'
+      path: '/$sightingId/edit'
+      fullPath: '/spotting/$sightingId/edit'
+      preLoaderRoute: typeof SpottingSightingIdEditRouteImport
+      parentRoute: typeof SpottingRoute
+    }
     '/admin/burung/$birdId/edit': {
       id: '/admin/burung/$birdId/edit'
       path: '/admin/burung/$birdId/edit'
@@ -283,11 +302,13 @@ const BurungRouteWithChildren =
 interface SpottingRouteChildren {
   SpottingSightingIdRoute: typeof SpottingSightingIdRoute
   SpottingIndexRoute: typeof SpottingIndexRoute
+  SpottingSightingIdEditRoute: typeof SpottingSightingIdEditRoute
 }
 
 const SpottingRouteChildren: SpottingRouteChildren = {
   SpottingSightingIdRoute: SpottingSightingIdRoute,
   SpottingIndexRoute: SpottingIndexRoute,
+  SpottingSightingIdEditRoute: SpottingSightingIdEditRoute,
 }
 
 const SpottingRouteWithChildren = SpottingRoute._addFileChildren(

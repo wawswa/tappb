@@ -34,7 +34,8 @@ pnpm --filter spotbird-api create-user pengamat "Pengamat" user "ganti-password-
 pnpm dev
 ```
 
-Akun admin dapat menambah burung; akun user dapat mencatat spotting. Login di
+Akun admin dapat menambah burung; akun user dapat mencatat spotting, lalu mengubah atau
+menghapus catatannya sendiri. Login di
 <http://localhost:5173/masuk>.
 
 Buka:
@@ -107,14 +108,14 @@ error berupa `{ "error": "..." }`.
 | GET | `/sightings?bird_id=&limit=` | publik | Daftar spotting terbaru + data burung; `limit` 1–100 |
 | GET | `/sightings/:id` | publik | Detail spotting + data burung |
 | POST | `/sightings` | user/admin | Tambah spotting (201); `observer_name` diambil dari sesi |
-| PUT | `/sightings/:id` | admin | Update penuh spotting |
-| DELETE | `/sightings/:id` | admin | Hapus spotting |
+| PUT | `/sightings/:id` | pemilik/admin | Update penuh spotting; `observer_name` tetap |
+| DELETE | `/sightings/:id` | pemilik/admin | Hapus spotting |
 | GET | `/stats` | publik | `bird_count`, `sighting_count`, `species_spotted` |
 
 Field burung: `id, slug, name, scientific_name, family, description, habitat, diet, size_cm,
 conservation_status, image_url, image_credit, image_source_url, created_at, sighting_count`.
 
-Field spotting: `id, bird_id, observer_name, location_name, latitude, longitude, spotted_at,
+Field spotting: `id, bird_id, user_id, observer_name, location_name, latitude, longitude, spotted_at,
 notes, created_at, bird_name, bird_image_url, bird_scientific_name`.
 
 Validasi mengembalikan 400 dengan pesan bahasa Indonesia. `latitude`/`longitude`/`size_cm`
@@ -129,8 +130,11 @@ curl -s "http://localhost:3001/api/sightings?limit=3"
 
 ## Akun dan peran
 
-- **Admin** — boleh menambah, mengubah, dan menghapus burung; boleh mencatat spotting.
-- **User** — boleh mencatat spotting; katalog tetap bisa dibaca tanpa login.
+- **Admin** — boleh menambah, mengubah, dan menghapus burung; boleh mencatat spotting, serta
+  mengubah dan menghapus spotting milik siapa pun.
+- **User** — boleh mencatat spotting, serta mengubah dan menghapus spotting miliknya sendiri;
+  katalog tetap bisa dibaca tanpa login.
+- Spotting lama tanpa pemilik (`user_id` kosong, termasuk data seed) hanya bisa diubah admin.
 - Tidak ada pendaftaran publik. Akun dibuat atau diubah lewat CLI:
 
 ```bash
@@ -149,14 +153,20 @@ Halaman:
 - `/admin/burung/$birdId/edit` — edit dan hapus burung, hanya untuk admin. Hapus memakai
   konfirmasi dan ikut menghapus spotting burung tersebut.
 - `/catat` — wajib login; nama pengamat diambil dari akun.
+- `/spotting/$sightingId/edit` — edit spotting; hanya pemilik atau admin. Detail spotting
+  menampilkan panel **Edit spotting** dan **Hapus** untuk keduanya.
 
-Di halaman detail burung, admin melihat panel **Edit burung** dan **Hapus**.
+Di halaman detail burung, admin melihat panel **Edit burung** dan **Hapus**. Di halaman
+detail spotting, pemilik dan admin melihat panel **Edit spotting** dan **Hapus**; hapus
+memakai konfirmasi di tempat.
 
-Database lama perlu migrasi sekali:
+Database lama perlu migrasi sekali (urut):
 
 ```bash
 podman exec -i spotbird-db psql -U spotbird -d spotbird -v ON_ERROR_STOP=1 \
   < api/db/migrations/001_auth.sql
+podman exec -i spotbird-db psql -U spotbird -d spotbird -v ON_ERROR_STOP=1 \
+  < api/db/migrations/002_sighting_owner.sql
 ```
 
 ## Reset database
@@ -251,8 +261,9 @@ Di host publik:
   `Cloudflare-CDN-Cache-Control: no-store` agar update PWA tidak tertahan cache edge.
 - Proxy mengizinkan `GET`/`HEAD`/`OPTIONS`, ditambah POST untuk `/api/auth/login`,
   `/api/auth/logout`, `/api/sightings`, dan `/api/birds`, serta `PUT`/`DELETE` khusus
-  `/api/birds/<uuid>`. API tetap menolak operasi tulis burung dari non-admin (`403`) dan
-  POST spotting tanpa sesi (`401`). Login dibatasi 20 permintaan/menit per IP.
+  `/api/birds/<uuid>` dan `/api/sightings/<uuid>`. API tetap menolak operasi tulis burung
+  dari non-admin (`403`), POST spotting tanpa sesi (`401`), dan edit/hapus spotting oleh
+  selain pemilik atau admin (`403`). Login dibatasi 20 permintaan/menit per IP.
   `PUT`/`DELETE` untuk endpoint lain tetap ditolak `403` di edge.
 - `nginx -t && systemctl reload nginx` setelah mengubah konfigurasi.
 
@@ -267,7 +278,7 @@ publik saat build. Service worker dan instalasi PWA memerlukan **HTTPS** (kecual
 |---|---|---|
 | 1 | API/web service sendiri sesuai Modul 1 | `api/` Express 5 + PostgreSQL dengan `config/`, `models/`, `controllers/`, `routes/`, env, dan CORS. Seluruh data UI berasal dari API. |
 | 2 | Bottom navigation bar | 5 item permanen di root layout: Beranda, Katalog, Spotting, Catat, Tentang. |
-| 3 | Minimal 5 halaman | 10 route: `/`, `/burung`, `/burung/$birdId`, `/spotting`, `/spotting/$sightingId`, `/catat`, `/tentang`, `/masuk`, `/admin/burung/baru`, `/admin/burung/$birdId/edit`. |
+| 3 | Minimal 5 halaman | 11 route: `/`, `/burung`, `/burung/$birdId`, `/spotting`, `/spotting/$sightingId`, `/spotting/$sightingId/edit`, `/catat`, `/tentang`, `/masuk`, `/admin/burung/baru`, `/admin/burung/$birdId/edit`. |
 | 4 | 2 halaman list + detail | Katalog → detail burung; Spotting → detail spotting. |
 | 5 | Profile/About aplikasi | `/tentang`: deskripsi, fitur, tech stack, panduan pasang, kredit. |
 | 6 | PWA | Manifest, service worker Workbox, ikon, app shell offline, cache API `NetworkFirst`. |

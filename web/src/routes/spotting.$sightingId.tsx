@@ -2,8 +2,10 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { BackLink } from '@/components/BackLink';
 import { BirdImage } from '@/components/BirdImage';
+import { DeleteSightingButton } from '@/components/DeleteSightingButton';
 import { EmptyState, ErrorState } from '@/components/States';
 import { ApiError, getSighting } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
 import { formatCoordinate, formatDateTime } from '@/lib/format';
 import { primaryAction } from '@/lib/ui';
 
@@ -13,6 +15,7 @@ export const Route = createFileRoute('/spotting/$sightingId')({
 
 function SightingDetailPage() {
   const { sightingId } = Route.useParams();
+  const { user, isAdmin } = useAuth();
 
   const sightingQuery = useQuery({
     queryKey: ['sightings', 'detail', sightingId],
@@ -61,6 +64,8 @@ function SightingDetailPage() {
     );
   }
 
+  const isOwner = Boolean(user && sighting.user_id === user.id);
+  const canManage = isAdmin || isOwner;
   const hasCoordinates = sighting.latitude !== null && sighting.longitude !== null;
   const rows = [
     { label: 'Tanggal', value: formatDateTime(sighting.spotted_at) },
@@ -119,6 +124,24 @@ function SightingDetailPage() {
           </div>
         ))}
       </dl>
+
+      {canManage ? (
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-y border-rule py-3">
+          <span className="font-mono text-[11px] text-muted">
+            {isAdmin && !isOwner ? 'Admin · kelola entri' : 'Spotting kamu'}
+          </span>
+          <div className="flex items-center gap-4">
+            <Link
+              to="/spotting/$sightingId/edit"
+              params={{ sightingId: sighting.id }}
+              className="inline-flex min-h-11 items-center text-[13px] font-medium text-forest transition-colors hover:text-forest-deep"
+            >
+              Edit spotting
+            </Link>
+            <DeleteSightingButton sighting={sighting} compact />
+          </div>
+        </div>
+      ) : null}
 
       {sighting.notes ? (
         <section className="mt-8 border-l-2 border-forest pl-4">

@@ -1,7 +1,7 @@
 import { query } from '../config/db.js';
 
 const SIGHTING_SELECT = `
-  SELECT s.id, s.bird_id, s.observer_name, s.location_name, s.latitude, s.longitude,
+  SELECT s.id, s.bird_id, s.user_id, s.observer_name, s.location_name, s.latitude, s.longitude,
          s.spotted_at, s.notes, s.created_at,
          b.name AS bird_name,
          b.image_url AS bird_image_url,
@@ -44,11 +44,12 @@ export async function getById(id) {
 export async function create(sighting) {
   const result = await query(
     `INSERT INTO sightings
-       (bird_id, observer_name, location_name, latitude, longitude, spotted_at, notes)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
+       (bird_id, user_id, observer_name, location_name, latitude, longitude, spotted_at, notes)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
      RETURNING id`,
     [
       sighting.bird_id,
+      sighting.user_id,
       sighting.observer_name,
       sighting.location_name,
       sighting.latitude,
